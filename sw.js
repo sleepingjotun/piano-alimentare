@@ -1,4 +1,4 @@
-const CACHE = 'piano-v2';
+const CACHE = 'piano-v6';
 const FILES = ['/piano-alimentare/', '/piano-alimentare/index.html', '/piano-alimentare/manifest.json'];
 
 self.addEventListener('install', e => {
