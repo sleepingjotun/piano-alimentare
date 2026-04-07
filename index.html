@@ -12,158 +12,189 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2f2ed; color: #1a1a1a; font-size: 15px; line-height: 1.6; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f2f2ed; color: #1a1a1a; font-size: 14px; line-height: 1.5; overflow: hidden; height: 100vh; }
 
-.app { display: grid; grid-template-columns: 320px 1fr; min-height: 100vh; }
-@media (max-width: 700px) { .app { grid-template-columns: 1fr; } }
+.app { display: grid; grid-template-columns: 300px 1fr; height: 100vh; }
+@media (max-width: 750px) { .app { grid-template-columns: 1fr; height: auto; overflow: auto; } }
 
-/* SIDEBAR */
-.sidebar { background: #fff; border-right: 1px solid #e5e5e0; display: flex; flex-direction: column; height: 100vh; position: sticky; top: 0; overflow: hidden; }
-.sidebar-header { padding: 14px 16px 10px; border-bottom: 1px solid #e5e5e0; flex-shrink: 0; }
-.sidebar-header h1 { font-size: 15px; font-weight: 700; }
-.sidebar-header p { font-size: 11px; color: #888; }
+/* ── SIDEBAR ── */
+.sidebar { background: #fff; border-right: 1px solid #e5e5e0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+.sidebar-header { padding: 14px 14px 8px; border-bottom: 1px solid #e5e5e0; flex-shrink: 0; }
+.sidebar-header h1 { font-size: 14px; font-weight: 700; }
+.sidebar-hint { font-size: 11px; color: #888; margin-top: 2px; transition: color .2s; }
+.sidebar-hint.selected { color: #1D9E75; font-weight: 600; }
+
 .sidebar-tabs { display: flex; gap: 4px; padding: 8px 10px 0; flex-shrink: 0; flex-wrap: wrap; }
-.stab { padding: 4px 9px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #e5e5e0; color: #666; background: transparent; white-space: nowrap; transition: all .15s; }
+.stab { padding: 4px 8px; border-radius: 20px; font-size: 11px; font-weight: 600; cursor: pointer; border: 1px solid #e5e5e0; color: #666; background: transparent; white-space: nowrap; transition: all .15s; -webkit-tap-highlight-color: transparent; }
 .stab.active { background: #1D9E75; color: #fff; border-color: #1D9E75; }
-.sidebar-scroll { flex: 1; overflow-y: auto; padding: 10px 10px 20px; }
+
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 8px 10px 20px; -webkit-overflow-scrolling: touch; }
 
 .meal-group { margin-bottom: 4px; }
-.meal-group-header { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; cursor: pointer; user-select: none; }
-.meal-group-header:hover { background: #f5f5f0; }
-.mg-icon { font-size: 14px; width: 22px; text-align: center; }
+.meal-group-header { display: flex; align-items: center; gap: 6px; padding: 6px 8px; border-radius: 8px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.meal-group-header:active { background: #f0f0ec; }
+.mg-icon { font-size: 14px; width: 20px; text-align: center; }
 .mg-name { font-size: 12px; font-weight: 600; flex: 1; }
-.mg-chev { font-size: 10px; color: #aaa; transition: transform .2s; }
+.mg-chev { font-size: 10px; color: #bbb; transition: transform .2s; }
 .mg-chev.open { transform: rotate(180deg); }
-.mg-options { display: none; padding-left: 6px; }
+.mg-options { display: none; padding-left: 4px; }
 .mg-options.open { display: block; }
 
-.opt-chip { display: flex; align-items: flex-start; gap: 6px; padding: 5px 8px; border-radius: 8px; margin-bottom: 3px; font-size: 12px; cursor: grab; border: 1px solid transparent; background: #f8f8f4; transition: background .1s; user-select: none; }
-.opt-chip:hover { background: #efefea; border-color: #ddd; }
-.opt-chip.dragging { opacity: .35; }
-.drag-handle { color: #ccc; font-size: 11px; flex-shrink: 0; padding-top: 1px; }
-.chip-label { flex: 1; }
-.chip-name { color: #1a1a1a; line-height: 1.3; }
-.chip-detail { font-size: 10px; color: #aaa; margin-top: 1px; }
-.chip-cat { font-style: italic; color: #bbb; font-size: 11px; padding: 5px 8px 2px; }
+.opt-chip {
+  display: flex; align-items: flex-start; gap: 6px;
+  padding: 7px 10px; border-radius: 8px; margin-bottom: 3px;
+  font-size: 12px; cursor: pointer; border: 2px solid transparent;
+  background: #f8f8f4; transition: background .1s, border-color .1s;
+  user-select: none; -webkit-tap-highlight-color: transparent;
+}
+.opt-chip:active { background: #efefea; }
+.opt-chip.selected { background: #e8faf3; border-color: #1D9E75; }
+.chip-name { color: #1a1a1a; line-height: 1.3; font-weight: 500; }
+.chip-detail { font-size: 10px; color: #aaa; margin-top: 2px; }
+.chip-cat { font-style: italic; color: #bbb; font-size: 11px; padding: 6px 8px 2px; }
 
-/* MAIN */
-.main { padding: 18px; overflow-y: auto; }
-.main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
-.main-title { font-size: 17px; font-weight: 700; }
+/* ── MAIN ── */
+.main { display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+@media (max-width: 750px) { .main { height: auto; overflow: visible; } }
+
+.main-header { padding: 14px 16px 10px; background: #f2f2ed; flex-shrink: 0; }
+.main-title { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
 .btn-row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.btn { padding: 6px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #ddd; color: #555; background: #fff; transition: all .15s; }
-.btn:hover { background: #f5f5f0; }
-.btn.primary { background: #1D9E75; color: #fff; border-color: #1D9E75; }
-.btn.primary:hover { background: #0F6E56; }
-.btn.active-edit { background: #EF9F27; color: #fff; border-color: #EF9F27; }
+.btn { padding: 7px 13px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; border: 1px solid #ddd; color: #555; background: #fff; transition: all .15s; -webkit-tap-highlight-color: transparent; }
+.btn:active { opacity: .8; }
+.btn.green { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+.btn.orange { background: #EF9F27; color: #fff; border-color: #EF9F27; }
+.btn.red { background: #E24B4A; color: #fff; border-color: #E24B4A; }
 .edit-badge { font-size: 11px; color: #EF9F27; font-weight: 700; padding: 3px 8px; background: #fff8ed; border: 1px solid #fac775; border-radius: 6px; }
 
-.note-box { background: #fff8ed; border: 1px solid #fac77560; border-radius: 10px; padding: 10px 13px; margin-bottom: 14px; font-size: 12px; color: #5a4a2a; line-height: 1.7; }
+.main-scroll { flex: 1; overflow-y: auto; padding: 12px 16px 24px; -webkit-overflow-scrolling: touch; }
+@media (max-width: 750px) { .main-scroll { overflow: visible; } }
+
+.note-box { background: #fff8ed; border: 1px solid #fac77555; border-radius: 10px; padding: 10px 13px; margin-bottom: 12px; font-size: 11px; color: #5a4a2a; line-height: 1.7; }
 .note-box strong { color: #3d3010; }
 
-.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 18px; }
-@media (max-width: 500px) { .rules { grid-template-columns: 1fr; } }
-.rule-card { background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 10px 12px; }
-.rule-card h3 { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
-.ri { display: flex; align-items: center; gap: 6px; font-size: 12px; margin-bottom: 3px; }
-.dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.rules { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+@media (max-width: 480px) { .rules { grid-template-columns: 1fr; } }
+.rule-card { background: #fff; border: 1px solid #e5e5e0; border-radius: 10px; padding: 9px 11px; }
+.rule-card h3 { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+.ri { display: flex; align-items: center; gap: 5px; font-size: 11px; margin-bottom: 2px; }
+.dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
 
 .section-label { font-size: 10px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px solid #e5e5e0; }
 
-/* PLANNER TABLE */
-.planner-wrap { overflow-x: auto; }
-.planner-grid { display: grid; gap: 5px; }
-.pg-header-row { display: contents; }
-.pg-header { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; text-align: center; padding: 4px 2px; }
+.planner-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.planner-grid { display: grid; gap: 4px; min-width: 480px; }
+.pg-header { font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; text-align: center; padding: 3px 2px; }
 .pg-header:first-child { text-align: left; }
-.pg-row { display: contents; }
-.pg-day { font-size: 11px; font-weight: 700; color: #555; display: flex; align-items: flex-start; padding-top: 8px; }
+.pg-day { font-size: 11px; font-weight: 700; color: #555; display: flex; align-items: flex-start; padding-top: 7px; }
 
 .drop-cell {
-  background: #fff; border: 1.5px dashed #ddd; border-radius: 10px;
-  min-height: 54px; padding: 5px; transition: border-color .15s, background .15s;
-  position: relative;
+  background: #fff; border: 1.5px dashed #ddd; border-radius: 9px;
+  min-height: 52px; padding: 4px; transition: border-color .15s, background .15s;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; position: relative;
 }
-.drop-cell.drag-over { border-color: #1D9E75 !important; background: #f0fdf8; }
+.drop-cell:not(.no-hover):active { background: #f5fdf9; border-color: #1D9E75; }
+.drop-cell.accepting { border-color: #1D9E75; background: #f0fdf8; border-style: solid; }
 .drop-cell.has-content { border-style: solid; border-color: #e8e8e4; }
-.cell-placeholder { font-size: 10px; color: #d0d0cc; text-align: center; padding: 8px 4px; pointer-events: none; }
 
-.cell-tag { display: flex; align-items: flex-start; gap: 4px; background: #f4f4f0; border-radius: 6px; padding: 4px 5px; font-size: 11px; margin-bottom: 3px; }
+.cell-placeholder { font-size: 10px; color: #d0d0cc; text-align: center; padding: 8px 2px; pointer-events: none; }
+
+.cell-tag { display: flex; align-items: flex-start; gap: 3px; background: #f4f4f0; border-radius: 6px; padding: 4px 5px; font-size: 11px; margin-bottom: 3px; }
 .cell-tag.edit-mode { background: #fff8ed; border: 1px solid #fac77580; }
-.tag-text { flex: 1; line-height: 1.35; }
+.tag-text { flex: 1; line-height: 1.3; }
 .tag-name { font-weight: 600; display: block; }
-.tag-detail { color: #999; font-size: 10px; display: block; }
-.tag-remove { color: #ccc; cursor: pointer; font-size: 12px; line-height: 1; flex-shrink: 0; padding: 0 1px; }
-.tag-remove:hover { color: #e24b4a; }
+.tag-detail { color: #aaa; font-size: 10px; display: block; }
+.tag-remove { color: #ccc; cursor: pointer; font-size: 13px; line-height: 1; flex-shrink: 0; padding: 1px 2px; -webkit-tap-highlight-color: transparent; }
+.tag-remove:active { color: #e24b4a; }
 .tag-edit-area { flex: 1; }
 .tag-edit-area textarea { width: 100%; border: none; outline: none; font-size: 11px; font-family: inherit; background: transparent; resize: none; line-height: 1.4; }
+
+/* ── SELECTED CHIP INDICATOR ── */
+.selected-bar {
+  display: none; position: sticky; bottom: 0; left: 0; right: 0;
+  background: #1D9E75; color: #fff; padding: 10px 14px;
+  font-size: 12px; font-weight: 600; z-index: 50;
+  border-top: 1px solid #0F6E56; flex-shrink: 0;
+  flex-direction: row; align-items: center; gap: 8px;
+}
+.selected-bar.visible { display: flex; }
+.selected-bar-text { flex: 1; }
+.selected-bar-cancel { background: rgba(255,255,255,0.25); border: none; color: #fff; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; cursor: pointer; }
 
 @media print {
   .sidebar { display: none !important; }
   .app { grid-template-columns: 1fr !important; }
-  .btn-row { display: none !important; }
-  .drop-cell { border: 1px solid #ccc !important; border-style: solid !important; }
+  .btn-row, .selected-bar { display: none !important; }
+  .drop-cell { border: 1px solid #ccc !important; border-style: solid !important; cursor: default; }
   .tag-remove { display: none !important; }
   .cell-placeholder { display: none !important; }
-  body { background: #fff; }
+  .main { height: auto; overflow: visible; }
+  .main-scroll { overflow: visible; }
+  body { overflow: auto; background: #fff; }
 }
 </style>
 </head>
 <body>
 <div class="app">
 
+<!-- SIDEBAR -->
 <aside class="sidebar">
   <div class="sidebar-header">
     <h1>🥗 Opzioni pasto</h1>
-    <p>Trascina nel pianificatore →</p>
+    <div class="sidebar-hint" id="sidebar-hint">Tocca un'opzione per selezionarla</div>
   </div>
   <div class="sidebar-tabs" id="stabs"></div>
   <div class="sidebar-scroll" id="sidebar-content"></div>
+  <div class="selected-bar" id="selected-bar">
+    <span class="selected-bar-text" id="selected-bar-text"></span>
+    <button class="selected-bar-cancel" onclick="deselectChip()">✕ Annulla</button>
+  </div>
 </aside>
 
-<main class="main">
+<!-- MAIN -->
+<div class="main">
   <div class="main-header">
     <div class="main-title">Piano Alimentare</div>
     <div class="btn-row">
-      <span class="edit-badge" id="edit-badge" style="display:none">✏️ Modifica attiva</span>
-      <button class="btn" id="edit-btn" onclick="toggleEdit()">✏️ Modifica</button>
-      <button class="btn" onclick="clearAll()">🗑️ Svuota tutto</button>
-      <button class="btn primary" onclick="window.print()">🖨️ Stampa</button>
+      <span class="edit-badge" id="edit-badge" style="display:none">✏️ Modifica</span>
+      <button class="btn green" onclick="randomize()">🎲 Randomizza settimana</button>
+      <button class="btn orange" id="edit-btn" onclick="toggleEdit()">✏️ Modifica</button>
+      <button class="btn" onclick="clearAll()">🗑️ Svuota</button>
+      <button class="btn" onclick="window.print()">🖨️ Stampa</button>
     </div>
   </div>
-
-  <div class="note-box">
-    <strong>Note:</strong> tutti gli alimenti vanno pesati <strong>a crudo</strong> · <strong>Clinnix Fibrovit</strong> dopo pranzo e cena ·
-    <strong>1 pasto libero/settimana</strong> · Colazioni e spuntini interscambiabili · Pane giornaliero <strong>60g</strong> · Con ogni pasto: <strong>200g verdure + 2 cucchiaini olio</strong>
-  </div>
-
-  <div class="rules">
-    <div class="rule-card">
-      <h3>Pranzo — 7×/settimana</h3>
-      <div class="ri"><div class="dot" style="background:#378ADD"></div>3× primi</div>
-      <div class="ri"><div class="dot" style="background:#1D9E75"></div>1× secondi di pesce</div>
-      <div class="ri"><div class="dot" style="background:#639922"></div>1× carne bianca</div>
-      <div class="ri"><div class="dot" style="background:#EF9F27"></div>1× uova</div>
-      <div class="ri"><div class="dot" style="background:#D4537E"></div>1× latticini</div>
+  <div class="main-scroll">
+    <div class="note-box">
+      <strong>Note:</strong> tutti gli alimenti vanno pesati <strong>a crudo</strong> · <strong>Clinnix Fibrovit</strong> dopo pranzo e cena · <strong>1 pasto libero/settimana</strong> · Colazioni e spuntini interscambiabili · Pane giornaliero <strong>60g</strong> · Con ogni pasto: <strong>200g verdure + 2 cucchiaini olio</strong>
     </div>
-    <div class="rule-card">
-      <h3>Cena — 7×/settimana</h3>
-      <div class="ri"><div class="dot" style="background:#E24B4A"></div>1× carne rossa</div>
-      <div class="ri"><div class="dot" style="background:#639922"></div>2× carne bianca</div>
-      <div class="ri"><div class="dot" style="background:#1D9E75"></div>2× pesce</div>
-      <div class="ri"><div class="dot" style="background:#EF9F27"></div>1× uova</div>
-      <div class="ri"><div class="dot" style="background:#D4537E"></div>1× latticini</div>
+    <div class="rules">
+      <div class="rule-card">
+        <h3>Pranzo — 7×/settimana</h3>
+        <div class="ri"><div class="dot" style="background:#378ADD"></div>3× primi</div>
+        <div class="ri"><div class="dot" style="background:#1D9E75"></div>1× secondi pesce</div>
+        <div class="ri"><div class="dot" style="background:#639922"></div>1× carne bianca</div>
+        <div class="ri"><div class="dot" style="background:#EF9F27"></div>1× uova</div>
+        <div class="ri"><div class="dot" style="background:#D4537E"></div>1× latticini</div>
+      </div>
+      <div class="rule-card">
+        <h3>Cena — 7×/settimana</h3>
+        <div class="ri"><div class="dot" style="background:#E24B4A"></div>1× carne rossa</div>
+        <div class="ri"><div class="dot" style="background:#639922"></div>2× carne bianca</div>
+        <div class="ri"><div class="dot" style="background:#1D9E75"></div>2× pesce</div>
+        <div class="ri"><div class="dot" style="background:#EF9F27"></div>1× uova</div>
+        <div class="ri"><div class="dot" style="background:#D4537E"></div>1× latticini</div>
+      </div>
+    </div>
+    <div class="section-label">Pianificatore settimanale — seleziona dalla sidebar poi tocca una cella</div>
+    <div class="planner-wrap">
+      <div class="planner-grid" id="planner"></div>
     </div>
   </div>
-
-  <div class="section-label">Pianificatore — trascina le opzioni dalla sidebar nelle celle</div>
-  <div class="planner-wrap">
-    <div class="planner-grid" id="planner"></div>
-  </div>
-</main>
+</div>
 </div>
 
 <script>
+// ── DATA ─────────────────────────────────────────────────────────────────────
 const meals = [
   { id:'col', icon:'☀️', name:'Colazione', options:[
     {n:'Latte + fette biscottate', d:'200g latte · 5 fette'},
@@ -194,7 +225,7 @@ const meals = [
     {n:'PRE-WO: Fette biscottate integrali + marmellata', d:'5 fette · 5 cucchiaini'},
     {n:'PRE-WO: Pane tostato + miele', d:'70g pane · 2 cucchiaini'},
   ]},
-  { id:'pv', icon:'🥪', name:'Pranzo veloci', options:[
+  { id:'pv', icon:'🥪', name:'Pranzo veloci', tag:'primo', options:[
     {n:'Insalata riso + salmone', d:'100g riso · 60g salmone aff.'},
     {n:'Insalata riso + tonno', d:'100g riso · 1 scatoletta'},
     {n:'Insalata riso + pollo', d:'100g riso · 100g pollo'},
@@ -204,10 +235,10 @@ const meals = [
     {n:'Panino con frittatina', d:'80g pane · 1 uovo'},
     {n:'Panino fesa di tacchino', d:'80g pane · 100g tacchino'},
     {n:'Panino con tonno', d:'80g pane · 1 scatoletta'},
-    {n:'Panino philadelphia + cotto', d:'80g pane · 80g phil. · 50g cotto'},
+    {n:'Panino philadelphia + prosciutto cotto', d:'80g pane · 80g phil. · 50g cotto'},
     {n:'Panino con cotoletta di pollo', d:'80g pane · 200g cotoletta'},
   ]},
-  { id:'pc', icon:'🍲', name:'Pranzo per casa', options:[
+  { id:'pc', icon:'🍲', name:'Pranzo per casa', tag:'primo', options:[
     {n:'Pasta con ceci', d:'50g pasta · 40g ceci secchi'},
     {n:'Zuppa di fagioli', d:'80g fagioli secchi'},
     {n:'Zuppa cereali e legumi', d:'80g misto secchi'},
@@ -218,14 +249,14 @@ const meals = [
     {n:'Pasta al sugo con ricotta', d:'80g pasta · 70g ricotta'},
     {n:'Pasta con piselli', d:'70g pasta · 40g piselli'},
     {n:'Pasta al tonno e olive', d:'80g pasta · 1 scatoletta'},
-    {n:'Riso zucchine e parmigiano', d:'80g riso · zucchine · 1 cucchiaio'},
-    {n:'Riso zucca e parmigiano', d:'80g riso · zucca · 1 cucchiaio'},
+    {n:'Riso zucchine e parmigiano', d:'80g riso · zucchine'},
+    {n:'Riso zucca e parmigiano', d:'80g riso · zucca'},
     {n:'Riso con piselli', d:'70g riso · 40g piselli'},
-    {n:'Riso al sugo e parmigiano', d:'80g riso · 1 cucchiaio parm.'},
+    {n:'Riso al sugo e parmigiano', d:'80g riso'},
     {n:'Orzo con verdure', d:'80g orzo'},
     {n:'Farro con verdure', d:'80g farro'},
   ]},
-  { id:'sv', icon:'🥗', name:'Secondi veloci', options:[
+  { id:'sv', icon:'🥗', name:'Secondi veloci', tag:'secondo_veloce', options:[
     {n:'Insalatona tonno + pomodori', d:'1 scatoletta · 200g pomodori'},
     {n:'Insalatona tonno + uovo sodo', d:'1 scatoletta · 2 uova · 200g verdure'},
     {n:'Caprese di mozzarella', d:'150g mozzarella · 200g pomodori'},
@@ -237,16 +268,16 @@ const meals = [
     {n:'Insalatona con philadelphia', d:'80g philadelphia · 200g verdure'},
   ]},
   { id:'car', icon:'🍗', name:'Cena — Carne', options:[
-    {n:'Petto di tacchino alla piastra', d:'180g (bianca)'},
-    {n:'Petto di tacchino con funghi', d:'180g tacchino · 200g funghi (bianca)'},
-    {n:'Salsiccia di tacchino', d:'180g (bianca)'},
-    {n:'Hamburger tacchino / pollo', d:'160g (bianca)'},
-    {n:'Cotoletta di pollo al forno', d:'200g (bianca)'},
-    {n:'Petto di pollo alla piastra', d:'200g (bianca)'},
-    {n:'Straccetti di vitello', d:'200g vitellone magro (ROSSA)'},
-    {n:'Salsiccia di suino', d:'160g (ROSSA)'},
+    {n:'Petto di tacchino alla piastra', d:'180g', tag:'carne_bianca'},
+    {n:'Petto di tacchino con funghi', d:'180g tacchino · 200g funghi', tag:'carne_bianca'},
+    {n:'Salsiccia di tacchino', d:'180g', tag:'carne_bianca'},
+    {n:'Hamburger tacchino / pollo', d:'160g', tag:'carne_bianca'},
+    {n:'Cotoletta di pollo al forno', d:'200g', tag:'carne_bianca'},
+    {n:'Petto di pollo alla piastra', d:'200g', tag:'carne_bianca'},
+    {n:'Straccetti di vitello', d:'200g vitellone magro', tag:'carne_rossa'},
+    {n:'Salsiccia di suino', d:'160g', tag:'carne_rossa'},
   ]},
-  { id:'pes', icon:'🐟', name:'Cena — Pesce', options:[
+  { id:'pes', icon:'🐟', name:'Cena — Pesce', tag:'pesce', options:[
     {n:'Sogliola', d:'250g crudo'},
     {n:'Spigola / branzino', d:'220g crudo'},
     {n:'Orata', d:'220g crudo'},
@@ -262,7 +293,7 @@ const meals = [
     {n:'Calamari grigliati', d:'250g crudo'},
     {n:'Alici / acciughe al forno', d:'220g pulite'},
   ]},
-  { id:'uov', icon:'🥚', name:'Cena — Uova', options:[
+  { id:'uov', icon:'🥚', name:'Cena — Uova', tag:'uova', options:[
     {n:'Frittata di zucchine', d:'2 uova · zucchine q.b.'},
     {n:'Frittata cipolle / spinaci', d:'2 uova'},
     {n:'Uova al sugo', d:'2 uova · conserva pomodoro'},
@@ -272,7 +303,7 @@ const meals = [
     {n:"Uova all'occhio di bue", d:'2 uova'},
     {n:'Frittata di patate al forno', d:'2 uova · 200g patate · 20g parm.'},
   ]},
-  { id:'lat', icon:'🧀', name:'Cena — Latticini', options:[
+  { id:'lat', icon:'🧀', name:'Cena — Latticini', tag:'latticini', options:[
     {n:'Provola affumicata fresca', d:'140g'},
     {n:'Fiordilatte', d:'140g'},
     {n:'Mozzarella', d:'140g'},
@@ -282,37 +313,171 @@ const meals = [
   ]},
 ];
 
-const days = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
+// Flatten pranzo secondi veloci: some can be pesce or latticini for pranzo rules
+const pranzoSecondoFish = meals.find(m=>m.id==='pes').options;
+const pranzoSecondoUova = meals.find(m=>m.id==='uov').options;
+const pranzoSecondoLat  = meals.find(m=>m.id==='lat').options;
+const pranzoSecondoCarne = meals.find(m=>m.id==='car').options.filter(o=>o.tag==='carne_bianca');
+
+const days  = ['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
 const slots = ['Colazione','Spuntino','Pranzo','Merenda','Cena'];
 
-let editMode = false;
-let dragData = null;
+// ── STATE ─────────────────────────────────────────────────────────────────────
+let editMode   = false;
+let selectedChip = null; // { text, detail, el }
 let plannerData = {};
 days.forEach(d => { plannerData[d] = {}; slots.forEach(s => { plannerData[d][s] = []; }); });
 
 try {
-  const saved = localStorage.getItem('pianoPasti_v2');
+  const saved = localStorage.getItem('piano_v3');
   if (saved) {
-    const parsed = JSON.parse(saved);
-    days.forEach(d => {
-      slots.forEach(s => {
-        if (parsed[d] && parsed[d][s]) plannerData[d][s] = parsed[d][s];
-      });
-    });
+    const p = JSON.parse(saved);
+    days.forEach(d => { slots.forEach(s => { if (p[d]?.[s]) plannerData[d][s] = p[d][s]; }); });
   }
-} catch(e) {}
+} catch(e){}
 
 function save() {
-  try { localStorage.setItem('pianoPasti_v2', JSON.stringify(plannerData)); } catch(e) {}
+  try { localStorage.setItem('piano_v3', JSON.stringify(plannerData)); } catch(e){}
 }
 
-// ── SIDEBAR ──────────────────────────────────────────────────────────────────
+function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+function shuffle(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+
+// ── RANDOMIZER ────────────────────────────────────────────────────────────────
+function classifyPranzo(text) {
+  // Try to understand what type a manually-set pranzo is
+  const t = text.toLowerCase();
+  if (/(sogliola|spigola|branzino|orata|dentice|merluzzo|nasello|baccalà|salmone|pesce spada|polpo|seppie|calamari|alici|acciughe|sgombro|tonno)/.test(t)) return 'pesce_pranzo';
+  if (/(tacchino|pollo|salsiccia.*tac|hamburger.*tac|cotoletta)/.test(t)) return 'carne_bianca_pranzo';
+  if (/(uov|frittata)/.test(t)) return 'uova_pranzo';
+  if (/(mozzarella|ricotta|feta|philadelphia|provola|fiordilatte|stracchino|scamorza|latticini|formaggio)/.test(t)) return 'latticini_pranzo';
+  return 'primo'; // pasta, riso, farro, zuppa, panino...
+}
+
+function classifyCena(text) {
+  const t = text.toLowerCase();
+  if (/(vitello|suino|salsiccia.*sui|bistecca|manzo|maiale)/.test(t)) return 'carne_rossa';
+  if (/(tacchino|pollo|salsiccia.*tac|hamburger.*tac|cotoletta)/.test(t)) return 'carne_bianca';
+  if (/(sogliola|spigola|branzino|orata|dentice|merluzzo|nasello|baccalà|salmone|pesce spada|polpo|seppie|calamari|alici|acciughe|sgombro|tonno)/.test(t)) return 'pesce';
+  if (/(uov|frittata)/.test(t)) return 'uova';
+  return 'latticini';
+}
+
+function randomize() {
+  const hasAny = days.some(d => slots.some(s => plannerData[d][s].length > 0));
+  const msg = hasAny
+    ? 'Riempire le celle vuote rispettando le tue scelte già inserite?\n\nLe celle già compilate non verranno toccate.'
+    : 'Generare una settimana casuale rispettando le regole del piano?';
+  if (!confirm(msg)) return;
+
+  const col       = meals.find(m=>m.id==='col').options;
+  const spu       = meals.find(m=>m.id==='spu').options.filter(o=>!o.cat);
+  const primiFull = [...meals.find(m=>m.id==='pv').options, ...meals.find(m=>m.id==='pc').options];
+  const pesceOpts = meals.find(m=>m.id==='pes').options;
+  const uovaOpts  = meals.find(m=>m.id==='uov').options;
+  const latOpts   = meals.find(m=>m.id==='lat').options;
+  const carOpts   = meals.find(m=>m.id==='car').options;
+  const cbOpts    = carOpts.filter(o=>o.tag==='carne_bianca');
+  const crOpts    = carOpts.filter(o=>o.tag==='carne_rossa');
+
+  // ── Detect what's already set for Pranzo and Cena ──
+  // Count how many of each type are already placed
+  const pranzoUsed = { primo:0, pesce_pranzo:0, carne_bianca_pranzo:0, uova_pranzo:0, latticini_pranzo:0 };
+  const cenaUsed   = { carne_rossa:0, carne_bianca:0, pesce:0, uova:0, latticini:0 };
+  const pranzoFilled = {}; // day -> true if already has pranzo
+  const cenaFilled   = {};
+
+  days.forEach(day => {
+    if (plannerData[day]['Pranzo'].length > 0) {
+      pranzoFilled[day] = true;
+      const tipo = classifyPranzo(plannerData[day]['Pranzo'][0].text);
+      pranzoUsed[tipo] = (pranzoUsed[tipo]||0) + 1;
+    }
+    if (plannerData[day]['Cena'].length > 0) {
+      cenaFilled[day] = true;
+      const tipo = classifyCena(plannerData[day]['Cena'][0].text);
+      cenaUsed[tipo] = (cenaUsed[tipo]||0) + 1;
+    }
+  });
+
+  // ── Build the remaining slots to fill for Pranzo ──
+  // Target: primo×3, pesce_pranzo×1, carne_bianca_pranzo×1, uova_pranzo×1, latticini_pranzo×1
+  const pranzoTargets = { primo:3, pesce_pranzo:1, carne_bianca_pranzo:1, uova_pranzo:1, latticini_pranzo:1 };
+  const pranzoPool = [];
+  for (const [tipo, target] of Object.entries(pranzoTargets)) {
+    const remaining = Math.max(0, target - (pranzoUsed[tipo]||0));
+    for (let i=0; i<remaining; i++) pranzoPool.push(tipo);
+  }
+  // If already over quota on some type, fill remaining empty days with primo (flexible)
+  const emptyPranzo = days.filter(d => !pranzoFilled[d]);
+  while (pranzoPool.length < emptyPranzo.length) pranzoPool.push('primo');
+  while (pranzoPool.length > emptyPranzo.length) pranzoPool.pop();
+  const shuffledPranzo = shuffle(pranzoPool);
+
+  // ── Build the remaining slots to fill for Cena ──
+  const cenaTargets = { carne_rossa:1, carne_bianca:2, pesce:2, uova:1, latticini:1 };
+  const cenaPool = [];
+  for (const [tipo, target] of Object.entries(cenaTargets)) {
+    const remaining = Math.max(0, target - (cenaUsed[tipo]||0));
+    for (let i=0; i<remaining; i++) cenaPool.push(tipo);
+  }
+  const emptyCena = days.filter(d => !cenaFilled[d]);
+  while (cenaPool.length < emptyCena.length) cenaPool.push('pesce');
+  while (cenaPool.length > emptyCena.length) cenaPool.pop();
+  const shuffledCena = shuffle(cenaPool);
+
+  // ── Fill empty days ──
+  let pi = 0, ci = 0;
+  days.forEach(day => {
+    // Colazione
+    if (plannerData[day]['Colazione'].length === 0) {
+      const c = pick(col);
+      plannerData[day]['Colazione'] = [{text: c.n, detail: c.d||''}];
+    }
+    // Spuntino
+    if (plannerData[day]['Spuntino'].length === 0) {
+      const sp = pick(spu);
+      plannerData[day]['Spuntino'] = [{text: sp.n, detail: sp.d||''}];
+    }
+    // Merenda
+    if (plannerData[day]['Merenda'].length === 0) {
+      const me = pick(spu);
+      plannerData[day]['Merenda'] = [{text: me.n, detail: me.d||''}];
+    }
+    // Pranzo
+    if (!pranzoFilled[day]) {
+      const pt = shuffledPranzo[pi++];
+      let o;
+      if (pt === 'primo') o = pick(primiFull);
+      else if (pt === 'pesce_pranzo') o = pick(pesceOpts);
+      else if (pt === 'carne_bianca_pranzo') o = pick(cbOpts);
+      else if (pt === 'uova_pranzo') o = pick(uovaOpts);
+      else o = pick(latOpts);
+      plannerData[day]['Pranzo'] = [{text: o.n, detail: o.d||''}];
+    }
+    // Cena
+    if (!cenaFilled[day]) {
+      const ct = shuffledCena[ci++];
+      let o;
+      if (ct === 'carne_rossa') o = pick(crOpts);
+      else if (ct === 'carne_bianca') o = pick(cbOpts);
+      else if (ct === 'pesce') o = pick(pesceOpts);
+      else if (ct === 'uova') o = pick(uovaOpts);
+      else o = pick(latOpts);
+      plannerData[day]['Cena'] = [{text: o.n, detail: o.d||''}];
+    }
+  });
+
+  save();
+  buildPlanner();
+}
+
+// ── SIDEBAR ────────────────────────────────────────────────────────────────────
 let activeTab = 'all';
 
 function buildSidebar() {
   const stabs = document.getElementById('stabs');
   stabs.innerHTML = '';
-
   function makeTab(id, label) {
     const t = document.createElement('button');
     t.className = 'stab' + (activeTab === id ? ' active' : '');
@@ -321,7 +486,7 @@ function buildSidebar() {
     stabs.appendChild(t);
   }
   makeTab('all', 'Tutti');
-  meals.forEach(m => makeTab(m.id, m.icon + ' ' + m.name));
+  meals.forEach(m => makeTab(m.id, m.icon));
 
   const sc = document.getElementById('sidebar-content');
   sc.innerHTML = '';
@@ -330,132 +495,68 @@ function buildSidebar() {
   toShow.forEach(meal => {
     const grp = document.createElement('div');
     grp.className = 'meal-group';
-
+    const chevId = 'mgc-' + meal.id;
     const hdr = document.createElement('div');
     hdr.className = 'meal-group-header';
-    const chevId = 'mgc-' + meal.id;
-    hdr.innerHTML = `<span class="mg-icon">${meal.icon}</span><span class="mg-name">${meal.name}</span><span class="mg-chev ${activeTab !== 'all' ? 'open' : ''}" id="${chevId}">▼</span>`;
-
+    hdr.innerHTML = `<span class="mg-icon">${meal.icon}</span><span class="mg-name">${meal.name}</span><span class="mg-chev ${activeTab !== 'all' ? 'open':''}" id="${chevId}">▼</span>`;
     const opts = document.createElement('div');
     opts.className = 'mg-options' + (activeTab !== 'all' ? ' open' : '');
-
-    hdr.onclick = () => {
-      opts.classList.toggle('open');
-      document.getElementById(chevId).classList.toggle('open');
-    };
+    hdr.onclick = () => { opts.classList.toggle('open'); document.getElementById(chevId).classList.toggle('open'); };
 
     meal.options.forEach(opt => {
       if (opt.cat) {
-        const c = document.createElement('div');
-        c.className = 'chip-cat';
-        c.textContent = opt.n;
-        opts.appendChild(c);
-        return;
+        const c = document.createElement('div'); c.className = 'chip-cat'; c.textContent = opt.n; opts.appendChild(c); return;
       }
       const chip = document.createElement('div');
       chip.className = 'opt-chip';
-      chip.draggable = true;
-      chip.innerHTML = `<span class="drag-handle">⠿</span><div class="chip-label"><div class="chip-name">${opt.n}</div>${opt.d ? `<div class="chip-detail">${opt.d}</div>` : ''}</div>`;
-
-      chip.addEventListener('dragstart', e => {
-        chip.classList.add('dragging');
-        dragData = { text: opt.n, detail: opt.d || '' };
-        e.dataTransfer.effectAllowed = 'copy';
-        e.dataTransfer.setData('text/plain', opt.n);
-      });
-      chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
-
-      chip._optData = { text: opt.n, detail: opt.d || '' };
-
+      chip.innerHTML = `<div><div class="chip-name">${opt.n}</div>${opt.d ? `<div class="chip-detail">${opt.d}</div>` : ''}</div>`;
+      chip.addEventListener('click', () => selectChip(chip, opt));
       opts.appendChild(chip);
     });
 
-    grp.appendChild(hdr);
-    grp.appendChild(opts);
-    sc.appendChild(grp);
+    grp.appendChild(hdr); grp.appendChild(opts); sc.appendChild(grp);
   });
 }
 
-function showMobileHint() {} // legacy, unused
-
-function openPicker(day, slot) {
-  // Remove existing picker
-  const existing = document.getElementById('picker-sheet');
-  if (existing) existing.remove();
-
-  const sheet = document.createElement('div');
-  sheet.id = 'picker-sheet';
-  sheet.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,0.18);max-height:75vh;display:flex;flex-direction:column;';
-
-  // Header
-  const hdr = document.createElement('div');
-  hdr.style.cssText = 'padding:14px 16px 10px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;';
-  hdr.innerHTML = `<div><div style="font-size:14px;font-weight:700;">Aggiungi a ${slot}</div><div style="font-size:11px;color:#888;">${day}</div></div><button onclick="document.getElementById('picker-sheet').remove()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;padding:0 4px;">✕</button>`;
-  sheet.appendChild(hdr);
-
-  // Search
-  const searchWrap = document.createElement('div');
-  searchWrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid #eee;flex-shrink:0;';
-  const searchInput = document.createElement('input');
-  searchInput.type = 'text';
-  searchInput.placeholder = 'Cerca opzione...';
-  searchInput.style.cssText = 'width:100%;padding:7px 10px;border:1px solid #e5e5e0;border-radius:8px;font-size:13px;outline:none;font-family:inherit;';
-  searchWrap.appendChild(searchInput);
-  sheet.appendChild(searchWrap);
-
-  // Options list
-  const list = document.createElement('div');
-  list.style.cssText = 'overflow-y:auto;flex:1;padding:6px 12px 20px;';
-
-  function renderList(filter) {
-    list.innerHTML = '';
-    meals.forEach(meal => {
-      const filtered = meal.options.filter(o => !o.cat && (!filter || o.n.toLowerCase().includes(filter.toLowerCase())));
-      if (filtered.length === 0) return;
-      const grpLabel = document.createElement('div');
-      grpLabel.style.cssText = 'font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px;';
-      grpLabel.textContent = meal.icon + ' ' + meal.name;
-      list.appendChild(grpLabel);
-      filtered.forEach(opt => {
-        const row = document.createElement('div');
-        row.style.cssText = 'padding:9px 10px;border-radius:10px;margin-bottom:3px;cursor:pointer;background:#f8f8f4;display:flex;flex-direction:column;gap:2px;';
-        row.innerHTML = `<span style="font-size:13px;font-weight:600;color:#1a1a1a;">${opt.n}</span>${opt.d ? `<span style="font-size:11px;color:#aaa;">${opt.d}</span>` : ''}`;
-        row.addEventListener('click', () => {
-          plannerData[day][slot].push({ text: opt.n, detail: opt.d || '' });
-          save();
-          const cell = document.querySelector(`.drop-cell[data-day="${day}"][data-slot="${slot}"]`);
-          if (cell) renderCell(cell, day, slot);
-          sheet.remove();
-        });
-        list.appendChild(row);
-      });
-    });
+function selectChip(el, opt) {
+  // Deselect previous
+  document.querySelectorAll('.opt-chip.selected').forEach(c => c.classList.remove('selected'));
+  if (selectedChip && selectedChip.el === el) {
+    // Tapping same chip again = deselect
+    deselectChip(); return;
   }
-
-  searchInput.addEventListener('input', () => renderList(searchInput.value));
-  renderList('');
-  sheet.appendChild(list);
-
-  // Backdrop
-  const backdrop = document.createElement('div');
-  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:9998;';
-  backdrop.addEventListener('click', () => { sheet.remove(); backdrop.remove(); });
-  document.body.appendChild(backdrop);
-  document.body.appendChild(sheet);
-  setTimeout(() => searchInput.focus(), 100);
+  el.classList.add('selected');
+  selectedChip = { text: opt.n, detail: opt.d || '', el };
+  // Update hint
+  const hint = document.getElementById('sidebar-hint');
+  hint.textContent = '✓ Selezionato — tocca una cella';
+  hint.classList.add('selected');
+  // Show bottom bar
+  const bar = document.getElementById('selected-bar');
+  bar.classList.add('visible');
+  document.getElementById('selected-bar-text').textContent = '→ ' + opt.n;
+  // Highlight accepting cells
+  document.querySelectorAll('.drop-cell').forEach(c => c.classList.add('accepting'));
 }
 
-// ── PLANNER ──────────────────────────────────────────────────────────────────
+function deselectChip() {
+  document.querySelectorAll('.opt-chip.selected').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.drop-cell.accepting').forEach(c => c.classList.remove('accepting'));
+  selectedChip = null;
+  const hint = document.getElementById('sidebar-hint');
+  hint.textContent = 'Tocca un\'opzione per selezionarla';
+  hint.classList.remove('selected');
+  document.getElementById('selected-bar').classList.remove('visible');
+}
+
+// ── PLANNER ────────────────────────────────────────────────────────────────────
 function buildPlanner() {
   const planner = document.getElementById('planner');
-  const cols = 1 + slots.length;
-  planner.style.gridTemplateColumns = `70px repeat(${slots.length}, 1fr)`;
-
+  planner.style.gridTemplateColumns = `68px repeat(${slots.length}, 1fr)`;
   planner.innerHTML = '';
 
-  // Header row
-  const emptyH = document.createElement('div');
-  planner.appendChild(emptyH);
+  // Headers
+  planner.appendChild(document.createElement('div'));
   slots.forEach(s => {
     const h = document.createElement('div');
     h.className = 'pg-header';
@@ -466,7 +567,7 @@ function buildPlanner() {
   days.forEach(day => {
     const dayEl = document.createElement('div');
     dayEl.className = 'pg-day';
-    dayEl.textContent = day.slice(0, 3).toUpperCase();
+    dayEl.textContent = day.slice(0,3).toUpperCase();
     planner.appendChild(dayEl);
 
     slots.forEach(slot => {
@@ -475,18 +576,14 @@ function buildPlanner() {
       cell.dataset.day = day;
       cell.dataset.slot = slot;
 
-      cell.addEventListener('dragover', e => { e.preventDefault(); cell.classList.add('drag-over'); });
-      cell.addEventListener('dragleave', () => cell.classList.remove('drag-over'));
-      cell.addEventListener('drop', e => {
-        e.preventDefault();
-        cell.classList.remove('drag-over');
-        if (dragData) dropIntoCell(cell, day, slot);
-      });
       cell.addEventListener('click', (e) => {
-        if (dragData) {
-          dropIntoCell(cell, day, slot);
-        } else if (!editMode && !e.target.closest('.tag-remove')) {
-          openPicker(day, slot);
+        if (e.target.closest('.tag-remove')) return;
+        if (editMode) return;
+        if (selectedChip) {
+          plannerData[day][slot].push({ text: selectedChip.text, detail: selectedChip.detail });
+          save();
+          renderCell(cell, day, slot);
+          deselectChip();
         }
       });
 
@@ -496,13 +593,6 @@ function buildPlanner() {
   });
 }
 
-function dropIntoCell(cell, day, slot) {
-  plannerData[day][slot].push({ text: dragData.text, detail: dragData.detail });
-  save();
-  renderCell(cell, day, slot);
-  dragData = null;
-}
-
 function renderCell(cell, day, slot) {
   cell.innerHTML = '';
   const items = plannerData[day][slot];
@@ -510,59 +600,47 @@ function renderCell(cell, day, slot) {
     cell.classList.remove('has-content');
     const p = document.createElement('div');
     p.className = 'cell-placeholder';
-    p.textContent = editMode ? 'Cella vuota' : '+ Tocca per aggiungere';
+    p.textContent = editMode ? '—' : '+';
     cell.appendChild(p);
     return;
   }
   cell.classList.add('has-content');
-
   items.forEach((item, idx) => {
     const tag = document.createElement('div');
     tag.className = 'cell-tag' + (editMode ? ' edit-mode' : '');
-
     if (editMode) {
-      const area = document.createElement('div');
-      area.className = 'tag-edit-area';
-      const ta = document.createElement('textarea');
-      ta.rows = 2;
+      const area = document.createElement('div'); area.className = 'tag-edit-area';
+      const ta = document.createElement('textarea'); ta.rows = 2;
       ta.value = item.text + (item.detail ? '\n' + item.detail : '');
       ta.addEventListener('input', () => {
         const lines = ta.value.split('\n');
-        item.text = lines[0] || '';
-        item.detail = lines.slice(1).join(' ');
-        save();
+        item.text = lines[0]||''; item.detail = lines.slice(1).join(' '); save();
       });
-      area.appendChild(ta);
-      tag.appendChild(area);
+      area.appendChild(ta); tag.appendChild(area);
     } else {
-      const txt = document.createElement('span');
-      txt.className = 'tag-text';
+      const txt = document.createElement('span'); txt.className = 'tag-text';
       txt.innerHTML = `<strong class="tag-name">${item.text}</strong>${item.detail ? `<span class="tag-detail">${item.detail}</span>` : ''}`;
       tag.appendChild(txt);
     }
-
     const rm = document.createElement('span');
-    rm.className = 'tag-remove';
-    rm.textContent = '✕';
-    rm.onclick = (e) => {
-      e.stopPropagation();
-      plannerData[day][slot].splice(idx, 1);
-      save();
-      renderCell(cell, day, slot);
-    };
+    rm.className = 'tag-remove'; rm.textContent = '✕';
+    rm.onclick = (e) => { e.stopPropagation(); plannerData[day][slot].splice(idx,1); save(); renderCell(cell,day,slot); };
     tag.appendChild(rm);
     cell.appendChild(tag);
   });
 }
 
+// ── CONTROLS ──────────────────────────────────────────────────────────────────
 function toggleEdit() {
   editMode = !editMode;
   const btn = document.getElementById('edit-btn');
   const badge = document.getElementById('edit-badge');
-  btn.textContent = editMode ? '✅ Fine modifica' : '✏️ Modifica';
-  btn.className = editMode ? 'btn active-edit' : 'btn';
+  btn.textContent = editMode ? '✅ Fine' : '✏️ Modifica';
+  btn.className = editMode ? 'btn warn' : 'btn orange';
   badge.style.display = editMode ? 'inline-block' : 'none';
+  if (editMode) deselectChip();
   document.querySelectorAll('.drop-cell').forEach(cell => {
+    cell.classList.toggle('no-hover', editMode);
     renderCell(cell, cell.dataset.day, cell.dataset.slot);
   });
 }
@@ -570,13 +648,13 @@ function toggleEdit() {
 function clearAll() {
   if (!confirm('Svuotare tutto il pianificatore?')) return;
   days.forEach(d => { slots.forEach(s => { plannerData[d][s] = []; }); });
-  save();
-  buildPlanner();
+  save(); buildPlanner();
 }
 
+// ── INIT ──────────────────────────────────────────────────────────────────────
 buildSidebar();
 buildPlanner();
 </script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/piano-alimentare/sw.js");}</script>
+<script>if("serviceWorker" in navigator){ navigator.serviceWorker.register("/piano-alimentare/sw.js"); }</script>
 </body>
 </html>
