@@ -365,15 +365,7 @@ function buildSidebar() {
       });
       chip.addEventListener('dragend', () => chip.classList.remove('dragging'));
 
-      // Mobile tap-to-select
-      chip.addEventListener('click', () => {
-        if (window.innerWidth <= 700) {
-          dragData = { text: opt.n, detail: opt.d || '' };
-          document.querySelectorAll('.opt-chip').forEach(c => c.style.outline = 'none');
-          chip.style.outline = '2px solid #1D9E75';
-          showMobileHint();
-        }
-      });
+      chip._optData = { text: opt.n, detail: opt.d || '' };
 
       opts.appendChild(chip);
     });
@@ -384,18 +376,73 @@ function buildSidebar() {
   });
 }
 
-function showMobileHint() {
-  let hint = document.getElementById('mobile-hint');
-  if (!hint) {
-    hint = document.createElement('div');
-    hint.id = 'mobile-hint';
-    hint.style.cssText = 'position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1D9E75;color:#fff;padding:8px 16px;border-radius:20px;font-size:12px;font-weight:600;z-index:999;pointer-events:none;';
-    hint.textContent = '✓ Selezionato — tocca una cella nel pianificatore';
-    document.body.appendChild(hint);
+function showMobileHint() {} // legacy, unused
+
+function openPicker(day, slot) {
+  // Remove existing picker
+  const existing = document.getElementById('picker-sheet');
+  if (existing) existing.remove();
+
+  const sheet = document.createElement('div');
+  sheet.id = 'picker-sheet';
+  sheet.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#fff;border-radius:20px 20px 0 0;box-shadow:0 -4px 30px rgba(0,0,0,0.18);max-height:75vh;display:flex;flex-direction:column;';
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'padding:14px 16px 10px;border-bottom:1px solid #eee;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;';
+  hdr.innerHTML = `<div><div style="font-size:14px;font-weight:700;">Aggiungi a ${slot}</div><div style="font-size:11px;color:#888;">${day}</div></div><button onclick="document.getElementById('picker-sheet').remove()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;padding:0 4px;">✕</button>`;
+  sheet.appendChild(hdr);
+
+  // Search
+  const searchWrap = document.createElement('div');
+  searchWrap.style.cssText = 'padding:8px 12px;border-bottom:1px solid #eee;flex-shrink:0;';
+  const searchInput = document.createElement('input');
+  searchInput.type = 'text';
+  searchInput.placeholder = 'Cerca opzione...';
+  searchInput.style.cssText = 'width:100%;padding:7px 10px;border:1px solid #e5e5e0;border-radius:8px;font-size:13px;outline:none;font-family:inherit;';
+  searchWrap.appendChild(searchInput);
+  sheet.appendChild(searchWrap);
+
+  // Options list
+  const list = document.createElement('div');
+  list.style.cssText = 'overflow-y:auto;flex:1;padding:6px 12px 20px;';
+
+  function renderList(filter) {
+    list.innerHTML = '';
+    meals.forEach(meal => {
+      const filtered = meal.options.filter(o => !o.cat && (!filter || o.n.toLowerCase().includes(filter.toLowerCase())));
+      if (filtered.length === 0) return;
+      const grpLabel = document.createElement('div');
+      grpLabel.style.cssText = 'font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:.06em;padding:8px 0 4px;';
+      grpLabel.textContent = meal.icon + ' ' + meal.name;
+      list.appendChild(grpLabel);
+      filtered.forEach(opt => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:9px 10px;border-radius:10px;margin-bottom:3px;cursor:pointer;background:#f8f8f4;display:flex;flex-direction:column;gap:2px;';
+        row.innerHTML = `<span style="font-size:13px;font-weight:600;color:#1a1a1a;">${opt.n}</span>${opt.d ? `<span style="font-size:11px;color:#aaa;">${opt.d}</span>` : ''}`;
+        row.addEventListener('click', () => {
+          plannerData[day][slot].push({ text: opt.n, detail: opt.d || '' });
+          save();
+          const cell = document.querySelector(`.drop-cell[data-day="${day}"][data-slot="${slot}"]`);
+          if (cell) renderCell(cell, day, slot);
+          sheet.remove();
+        });
+        list.appendChild(row);
+      });
+    });
   }
-  hint.style.display = 'block';
-  clearTimeout(hint._t);
-  hint._t = setTimeout(() => { hint.style.display = 'none'; }, 3000);
+
+  searchInput.addEventListener('input', () => renderList(searchInput.value));
+  renderList('');
+  sheet.appendChild(list);
+
+  // Backdrop
+  const backdrop = document.createElement('div');
+  backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:9998;';
+  backdrop.addEventListener('click', () => { sheet.remove(); backdrop.remove(); });
+  document.body.appendChild(backdrop);
+  document.body.appendChild(sheet);
+  setTimeout(() => searchInput.focus(), 100);
 }
 
 // ── PLANNER ──────────────────────────────────────────────────────────────────
@@ -435,12 +482,11 @@ function buildPlanner() {
         cell.classList.remove('drag-over');
         if (dragData) dropIntoCell(cell, day, slot);
       });
-      cell.addEventListener('click', () => {
+      cell.addEventListener('click', (e) => {
         if (dragData) {
           dropIntoCell(cell, day, slot);
-          document.querySelectorAll('.opt-chip').forEach(c => c.style.outline = 'none');
-          const hint = document.getElementById('mobile-hint');
-          if (hint) hint.style.display = 'none';
+        } else if (!editMode && !e.target.closest('.tag-remove')) {
+          openPicker(day, slot);
         }
       });
 
@@ -464,7 +510,7 @@ function renderCell(cell, day, slot) {
     cell.classList.remove('has-content');
     const p = document.createElement('div');
     p.className = 'cell-placeholder';
-    p.textContent = editMode ? 'Cella vuota' : 'Trascina qui';
+    p.textContent = editMode ? 'Cella vuota' : '+ Tocca per aggiungere';
     cell.appendChild(p);
     return;
   }
@@ -531,6 +577,6 @@ function clearAll() {
 buildSidebar();
 buildPlanner();
 </script>
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js");}</script>
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("/piano-alimentare/sw.js");}</script>
 </body>
 </html>

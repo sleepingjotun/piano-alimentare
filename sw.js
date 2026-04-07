@@ -1,5 +1,5 @@
-const CACHE = 'piano-v1';
-const FILES = ['/', '/index.html', '/manifest.json'];
+const CACHE = 'piano-v2';
+const FILES = ['/piano-alimentare/', '/piano-alimentare/index.html', '/piano-alimentare/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)));
